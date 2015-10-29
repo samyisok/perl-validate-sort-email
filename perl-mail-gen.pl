@@ -20,7 +20,7 @@ my $prefix_file = "output_";
 GetOptions(
            'emails_count=i' => \$emails_count,
            'files_count=i' => \$files_count,
-           'prefix_file=i' => \$prefix_file,
+           'prefix_file=s' => \$prefix_file,
                                             ) or die "Usage: $0 --emails_count 999 \n"
                                                     . "Default: $emails_count \n"
                                                     . "Usage: $0 --files_count 1 \n"
