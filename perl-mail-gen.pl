@@ -13,7 +13,7 @@ use v5.18;
 use Data::Random qw(:all);
 use Getopt::Long qw(GetOptions);
 
-my $emails_count = 1; #per file 
+my $emails_count = 1000; #per file  max 45427
 my $files_count = 3;
 my $prefix_file = "output_";
 
