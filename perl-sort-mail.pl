@@ -15,6 +15,7 @@ use List::MoreUtils qw(uniq part);
 use Unicode::CaseFold;
 use threads;
 use threads::shared;
+use Test::More;
 
 my $treads_count  = 4;
 my @treads_arrays = ();
@@ -40,6 +41,16 @@ sub sort_by_domain {
     return %tmp_hash;
 }
 
+sub test_sort_by_domain {
+    my @test_input_array =
+      ( 'magaster@gmail.com', 'test@gmail.com', 'test@yandex.ru' );
+    my $test_expected_hash = { 'gmail.com' => 2, 'yandex.ru' => 1, };
+    my (%test_output) = sort_by_domain(@test_input_array);
+    is_deeply( \%test_output, $test_expected_hash,
+        "making test sort by domain" );
+
+}
+
 sub valid_by_mail {
     my (@array_email) = @_;
     chomp @array_email;
@@ -48,6 +59,14 @@ sub valid_by_mail {
         push @tmp_array, $email if $email =~ $regex;
     }
     return @tmp_array;
+}
+
+sub test_valid_by_mail {
+    my @test_input_array =
+      qw/ magaster@gmail.com $$$uncorrect@mail.com 3424234@_234.com @@@@ /;
+    my @test_expect_array = qw / magaster@gmail.com /;
+    my @test_output       = valid_by_mail(@test_input_array);
+    is_deeply( @test_output, @test_expect_array, "making test valid by mail" );
 }
 
 sub check_and_sort_email {
@@ -72,6 +91,34 @@ sub check_and_sort_email {
 
 }
 
+sub test_check_and_sort_email {
+    my @test_input_array =
+      qw/ magaster@gmail.com $$$uncorrect@mail.com 3424234@_234.com @@@@ correct@yandex.ru correct@gmail.com /;
+    my $test_expected_hash = { 'gmail.com' => 2, 'yandex.ru' => 1, };
+    my @test_expected_array =
+      qw/ magaster@gmail.com correct@yandex.ru correct@gmail.com /;
+    check_and_sort_email(@test_input_array);
+    is_deeply( \@test_expected_array, \@final_array,
+        "make test final array from check and sort email" );
+    is_deeply( $test_expected_hash, \%final_hash,
+        "make test final hash from check and sort email" );
+
+}
+
+my ($is_test) = @ARGV;
+if ( $is_test eq "make_test" ) {
+    plan tests => 4;
+    make_test();
+}
+
+sub make_test {
+    test_sort_by_domain();
+    test_valid_by_mail();
+    test_check_and_sort_email();
+    done_testing();
+    exit 0;
+}
+
 die "file list is empty\n" unless (@ARGV);
 
 foreach my $filename (@ARGV) {
@@ -83,13 +130,11 @@ foreach my $filename (@ARGV) {
     }
 }
 
-
-
 say "In list email: " . scalar @main_email_array;
 my $time1 = time();
 $_ = fc foreach (@main_email_array);
 my $time2 = time();
-@main_email_array =  uniq(@main_email_array);
+@main_email_array = uniq(@main_email_array);
 my $time3 = time();
 
 my $i = 0;
